@@ -26,24 +26,49 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 #debug{position:absolute;bottom:8px;left:8px;right:8px;background:rgba(0,0,0,.75);color:#0f0;font-size:11px;font-family:monospace;padding:6px 8px;border-radius:6px;pointer-events:none;z-index:15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #start-overlay{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:10;}
 #start-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:12px;font-family:'Noto Sans JP',sans-serif;font-size:16px;font-weight:700;padding:18px 48px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-#qr-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:20;padding:24px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+#qr-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:20;padding:24px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
 #qr-overlay.ok{background:rgba(0,25,15,0.93);}
 #qr-overlay.already{background:rgba(30,18,0,0.93);}
 #qr-overlay.ng{background:rgba(28,4,8,0.93);}
-.ov-icon{font-size:64px;line-height:1;}
+
+/* ★ 区分表示（年長幼児 / 一般）を大きく */
+.ov-category{
+  font-size:clamp(52px,16vw,88px);
+  font-weight:700;
+  letter-spacing:.05em;
+  text-align:center;
+  line-height:1.1;
+  padding:12px 28px;
+  border-radius:20px;
+  margin-bottom:4px;
+}
+.ok .ov-category{
+  color:#0d0f14;
+  background:var(--accent);
+  box-shadow:0 0 40px rgba(0,229,160,0.5);
+}
+.already .ov-category{
+  color:#0d0f14;
+  background:var(--warn);
+  box-shadow:0 0 40px rgba(255,165,2,0.5);
+}
+.ng .ov-category{ display:none; }
+
+.ov-icon{font-size:48px;line-height:1;}
 .ov-label{font-size:14px;font-weight:700;letter-spacing:.1em;}
 .ok .ov-label{color:var(--accent);}
 .already .ov-label{color:var(--warn);}
 .ng .ov-label{color:var(--danger);}
-.ov-name{font-size:clamp(20px,5.5vw,38px);font-weight:700;color:#fff;text-align:center;word-break:break-all;line-height:1.45;text-shadow:0 2px 12px rgba(0,0,0,.7);}
-.ov-sub{font-size:13px;color:rgba(255,255,255,.55);text-align:center;}
-.ov-bar-wrap{width:min(280px,80vw);height:4px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:4px;}
+.ov-name{font-size:clamp(14px,3.5vw,22px);font-weight:700;color:rgba(255,255,255,0.75);text-align:center;word-break:break-all;line-height:1.45;}
+.ov-sub{font-size:13px;color:rgba(255,255,255,.45);text-align:center;}
+.ov-bar-wrap{width:min(280px,80vw);height:4px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:8px;}
 .ov-bar{height:100%;border-radius:99px;transform-origin:left;animation:shrink 5s linear forwards;}
 .ok .ov-bar{background:var(--accent);}
 .already .ov-bar{background:var(--warn);}
 .ng .ov-bar{background:var(--danger);}
 @keyframes shrink{from{transform:scaleX(1);}to{transform:scaleX(0);}}
 .ov-tap{font-size:11px;color:rgba(255,255,255,.3);margin-top:4px;}
+
 #result-panel{flex-shrink:0;padding:10px 14px;display:none;}
 .rc{border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
 .rc.ok{background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.35);}
@@ -100,6 +125,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   <div id="debug">カメラ起動待機中...</div>
   <button id="cam-sw">📷 切替</button>
   <div id="qr-overlay">
+    <div class="ov-category" id="ov-category"></div>
     <div class="ov-icon" id="ov-icon"></div>
     <div class="ov-label" id="ov-label"></div>
     <div class="ov-name" id="ov-name"></div>
@@ -123,7 +149,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 const GAS='https://script.google.com/macros/s/AKfycbz3zYceXKGmq1178CB7TKka-WtKjBxHaL0VPfJVMpyWTd4inCfN31n4ew4c_oMW1eti/exec';
-const video=document.getElementById('video'),canvas=document.getElementById('scan-canvas'),ctx=canvas.getContext('2d'),startOv=document.getElementById('start-overlay'),startBtn=document.getElementById('start-btn'),rPanel=document.getElementById('result-panel'),logList=document.getElementById('log-list'),cntEl=document.getElementById('cnt'),camSw=document.getElementById('cam-sw'),qrOv=document.getElementById('qr-overlay'),ovIcon=document.getElementById('ov-icon'),ovLabel=document.getElementById('ov-label'),ovName=document.getElementById('ov-name'),ovSub=document.getElementById('ov-sub'),ovBar=document.getElementById('ov-bar'),dbg=document.getElementById('debug');
+const video=document.getElementById('video'),canvas=document.getElementById('scan-canvas'),ctx=canvas.getContext('2d'),startOv=document.getElementById('start-overlay'),startBtn=document.getElementById('start-btn'),rPanel=document.getElementById('result-panel'),logList=document.getElementById('log-list'),cntEl=document.getElementById('cnt'),camSw=document.getElementById('cam-sw'),qrOv=document.getElementById('qr-overlay'),ovCategory=document.getElementById('ov-category'),ovIcon=document.getElementById('ov-icon'),ovLabel=document.getElementById('ov-label'),ovName=document.getElementById('ov-name'),ovSub=document.getElementById('ov-sub'),ovBar=document.getElementById('ov-bar'),dbg=document.getElementById('debug');
+
 let scanning=false,lastCode='',lastTime=0,rTimer=null,oTimer=null,logItems=[],countOk=0,cameras=[],camIdx=0,stream=null,frameCount=0;
 
 startBtn.addEventListener('click',async()=>{
@@ -168,14 +195,27 @@ async function handleScan(qr){
     handleResult(d,qr);
   }catch(err){
     showCard('ng','エラー','通信エラー','ネットワークを確認してください');
-    addLog(qr,'ng');lastCode='';
+    addLog(qr,'ng','');lastCode='';
   }
 }
 
 function handleResult(d,qr){
-  if(d.status==='scanned'){countOk++;cntEl.textContent=countOk;showCard('ok','✓ 受付完了',qr,'A列に〇を記録しました');showOverlay('ok','✅','✓ 受付完了',qr,'A列に〇を記録しました');addLog(qr,'ok');vib([120]);}
-  else if(d.status==='alreadyScanned'){showCard('already','⚠ 受付済み',qr,'すでに受付済みです');showOverlay('already','⚠️','⚠ 受付済み',qr,'すでに受付済みです');addLog(qr,'already');vib([60,60,60]);}
-  else{showCard('ng','✗ 照合なし',qr,'リストに存在しません');showOverlay('ng','❌','✗ 照合なし',qr,'リストに存在しません');addLog(qr,'ng');vib([250]);}
+  // GASから返るd.sheetが「年長幼児」または「一般」
+  const sheet = d.sheet || '';
+  if(d.status==='scanned'){
+    countOk++;cntEl.textContent=countOk;
+    showCard('ok','✓ 受付完了',qr,'A列に〇を記録しました');
+    showOverlay('ok','✅','✓ 受付完了',qr,'A列に〇を記録しました', sheet);
+    addLog(qr,'ok',sheet);vib([120]);
+  }else if(d.status==='alreadyScanned'){
+    showCard('already','⚠ 受付済み',qr,'すでに受付済みです');
+    showOverlay('already','⚠️','⚠ 受付済み',qr,'すでに受付済みです', sheet);
+    addLog(qr,'already',sheet);vib([60,60,60]);
+  }else{
+    showCard('ng','✗ 照合なし',qr,'リストに存在しません');
+    showOverlay('ng','❌','✗ 照合なし',qr,'リストに存在しません','');
+    addLog(qr,'ng','');vib([250]);
+  }
 }
 
 function showCard(type,label,name,sub){
@@ -187,21 +227,33 @@ function showCard(type,label,name,sub){
   if(type!=='loading')rTimer=setTimeout(()=>{rPanel.style.display='none';lastCode='';},5000);
 }
 
-function showOverlay(type,icon,label,name,sub){
+function showOverlay(type,icon,label,name,sub,category){
   if(oTimer)clearTimeout(oTimer);
   qrOv.className=type;qrOv.style.display='flex';
+  // 区分（年長幼児/一般）を大きく表示
+  ovCategory.textContent = category || '';
   ovIcon.textContent=icon;ovLabel.textContent=label;ovName.textContent=name;ovSub.textContent=sub;
   ovBar.style.animation='none';ovBar.offsetHeight;ovBar.style.animation='shrink 5s linear forwards';
   oTimer=setTimeout(()=>{qrOv.style.display='none';lastCode='';},5000);
 }
+
 qrOv.addEventListener('click',()=>{if(oTimer)clearTimeout(oTimer);qrOv.style.display='none';lastCode='';});
 
-function addLog(qr,st){const now=new Date();const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');logItems.unshift({qr,st,t});renderLog();}
+function addLog(qr,st,sheet){
+  const now=new Date();
+  const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  logItems.unshift({qr,st,t,sheet});renderLog();
+}
+
 function renderLog(){
   if(!logItems.length){logList.innerHTML='<div class="le">まだスキャンされていません</div>';return;}
   const lb={ok:'一致',already:'済',ng:'不一致'},dc={ok:'dok',already:'dal',ng:'dng'},bc={ok:'bok',already:'bal',ng:'bng'};
-  logList.innerHTML=logItems.map(i=>'<div class="li"><div class="ld '+dc[i.st]+'"></div><div class="ln">'+esc(i.qr)+'</div><div class="lt">'+i.t+'</div><div class="lb2 '+bc[i.st]+'">'+lb[i.st]+'</div></div>').join('');
+  logList.innerHTML=logItems.map(i=>{
+    const sheetLabel = i.sheet ? ' <span style="font-size:10px;color:var(--text2);">['+esc(i.sheet)+']</span>' : '';
+    return '<div class="li"><div class="ld '+dc[i.st]+'"></div><div class="ln">'+esc(i.qr)+sheetLabel+'</div><div class="lt">'+i.t+'</div><div class="lb2 '+bc[i.st]+'">'+lb[i.st]+'</div></div>';
+  }).join('');
 }
+
 function clearLog(){logItems=[];countOk=0;cntEl.textContent='0';renderLog();}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function vib(p){if(navigator.vibrate)navigator.vibrate(p);}
