@@ -163,7 +163,7 @@ startBtn.addEventListener('click',async()=>{
 async function startCam(){
   if(stream)stream.getTracks().forEach(t=>t.stop());
   if(cameras.length===0){const devs=await navigator.mediaDevices.enumerateDevices();cameras=devs.filter(d=>d.kind==='videoinput');if(cameras.length>1)camSw.style.display='block';}
-  const c={video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}};
+  const c={video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720}}};
   if(cameras.length>0&&cameras[camIdx])c.video.deviceId={exact:cameras[camIdx].deviceId};
   stream=await navigator.mediaDevices.getUserMedia(c);video.srcObject=stream;await video.play();
 }
