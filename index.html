@@ -160,28 +160,15 @@ function tick(){
   requestAnimationFrame(tick);
 }
 
-async function handleScan(qr) {
-  showCard('loading', '照合中…', qr, '');
-  try {
-    const res = await fetch(
-      GAS + '?action=check&qr=' + encodeURIComponent(qr),
-      {
-        redirect: 'follow',
-        mode: 'no-cors'
-      }
-    );
-    // no-corsではレスポンスが読めないので
-    // 別途GETで結果を取得
-    const res2 = await fetch(
-      GAS + '?action=check&qr=' + encodeURIComponent(qr),
-      { redirect: 'follow' }
-    );
-    const d = await res2.json();
-    handleResult(d, qr);
-  } catch(err) {
-    showCard('ng', 'エラー', '通信エラー', err.message);
-    addLog(qr, 'ng');
-    lastCode = '';
+async function handleScan(qr){
+  showCard('loading','照合中…',qr,'');
+  try{
+    const res=await fetch(GAS+'?action=check&qr='+encodeURIComponent(qr),{redirect:'follow'});
+    const d=await res.json();
+    handleResult(d,qr);
+  }catch(err){
+    showCard('ng','エラー','通信エラー','ネットワークを確認してください');
+    addLog(qr,'ng');lastCode='';
   }
 }
 
