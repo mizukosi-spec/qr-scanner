@@ -160,16 +160,29 @@ function tick(){
   requestAnimationFrame(tick);
 }
 
-function handleScan(qr){
-  showCard('loading','照合中…',qr,'');
-  const cbName='gasCallback_'+Date.now();
-  const script=document.createElement('script');
-  const tid=setTimeout(()=>{cleanup();showCard('ng','エラー','タイムアウト','通信がタイムアウトしました');addLog(qr,'ng');lastCode='';},10000);
-  function cleanup(){clearTimeout(tid);delete window[cbName];if(script.parentNode)document.body.removeChild(script);}
-  window[cbName]=function(data){cleanup();handleResult(data,qr);};
-  script.onerror=function(){cleanup();showCard('ng','エラー','通信エラー','ネットワークを確認してください');addLog(qr,'ng');lastCode='';};
-  script.src=GAS+'?action=check&qr='+encodeURIComponent(qr)+'&callback='+cbName;
-  document.body.appendChild(script);
+async function handleScan(qr) {
+  showCard('loading', '照合中…', qr, '');
+  try {
+    const res = await fetch(
+      GAS + '?action=check&qr=' + encodeURIComponent(qr),
+      {
+        redirect: 'follow',
+        mode: 'no-cors'
+      }
+    );
+    // no-corsではレスポンスが読めないので
+    // 別途GETで結果を取得
+    const res2 = await fetch(
+      GAS + '?action=check&qr=' + encodeURIComponent(qr),
+      { redirect: 'follow' }
+    );
+    const d = await res2.json();
+    handleResult(d, qr);
+  } catch(err) {
+    showCard('ng', 'エラー', '通信エラー', err.message);
+    addLog(qr, 'ng');
+    lastCode = '';
+  }
 }
 
 function handleResult(d,qr){
