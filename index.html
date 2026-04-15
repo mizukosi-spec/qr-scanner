@@ -31,7 +31,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 #qr-overlay.already{background:rgba(30,18,0,0.93);}
 #qr-overlay.ng{background:rgba(28,4,8,0.93);}
 
-/* ★ 区分表示（年長幼児 / 一般）を大きく */
+/* ★ 区分表示（年長幼児 / 一般）を大きく・色分け */
 .ov-category{
   font-size:clamp(52px,16vw,88px);
   font-weight:700;
@@ -41,16 +41,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   padding:12px 28px;
   border-radius:20px;
   margin-bottom:4px;
-}
-.ok .ov-category{
   color:#0d0f14;
+}
+/* 年長幼児 = 緑 */
+.ov-category.cat-nencho{
   background:var(--accent);
   box-shadow:0 0 40px rgba(0,229,160,0.5);
 }
-.already .ov-category{
-  color:#0d0f14;
-  background:var(--warn);
-  box-shadow:0 0 40px rgba(255,165,2,0.5);
+/* 一般 = オレンジ */
+.ov-category.cat-ippan{
+  background:#ff8c00;
+  box-shadow:0 0 40px rgba(255,140,0,0.5);
 }
 .ng .ov-category{ display:none; }
 
@@ -62,7 +63,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .ov-name{font-size:clamp(14px,3.5vw,22px);font-weight:700;color:rgba(255,255,255,0.75);text-align:center;word-break:break-all;line-height:1.45;}
 .ov-sub{font-size:13px;color:rgba(255,255,255,.45);text-align:center;}
 .ov-bar-wrap{width:min(280px,80vw);height:4px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:8px;}
-.ov-bar{height:100%;border-radius:99px;transform-origin:left;animation:shrink 5s linear forwards;}
+.ov-bar{height:100%;border-radius:99px;transform-origin:left;animation:shrink 10s linear forwards;}
 .ok .ov-bar{background:var(--accent);}
 .already .ov-bar{background:var(--warn);}
 .ng .ov-bar{background:var(--danger);}
@@ -224,17 +225,20 @@ function showCard(type,label,name,sub){
   const ico=type==='loading'?'<div class="spinner"></div>':'<div style="font-size:18px">'+ic[type]+'</div>';
   rPanel.style.display='block';
   rPanel.innerHTML='<div class="rc '+type+'"><div class="ri">'+ico+'</div><div class="rb"><div class="rl">'+label+'</div><div class="rn">'+esc(name)+'</div>'+(sub?'<div class="rs">'+esc(sub)+'</div>':'')+'</div></div>';
-  if(type!=='loading')rTimer=setTimeout(()=>{rPanel.style.display='none';lastCode='';},5000);
+  if(type!=='loading')rTimer=setTimeout(()=>{rPanel.style.display='none';lastCode='';},10000);
 }
 
 function showOverlay(type,icon,label,name,sub,category){
   if(oTimer)clearTimeout(oTimer);
   qrOv.className=type;qrOv.style.display='flex';
-  // 区分（年長幼児/一般）を大きく表示
+  // 区分（年長幼児/一般）を大きく・色分け表示
   ovCategory.textContent = category || '';
+  ovCategory.className = 'ov-category';
+  if(category==='年長幼児') ovCategory.classList.add('cat-nencho');
+  else if(category==='一般') ovCategory.classList.add('cat-ippan');
   ovIcon.textContent=icon;ovLabel.textContent=label;ovName.textContent=name;ovSub.textContent=sub;
-  ovBar.style.animation='none';ovBar.offsetHeight;ovBar.style.animation='shrink 5s linear forwards';
-  oTimer=setTimeout(()=>{qrOv.style.display='none';lastCode='';},5000);
+  ovBar.style.animation='none';ovBar.offsetHeight;ovBar.style.animation='shrink 10s linear forwards';
+  oTimer=setTimeout(()=>{qrOv.style.display='none';lastCode='';},10000);
 }
 
 qrOv.addEventListener('click',()=>{if(oTimer)clearTimeout(oTimer);qrOv.style.display='none';lastCode='';});
