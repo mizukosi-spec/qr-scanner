@@ -122,7 +122,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 </div>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
-const GAS='https://script.google.com/macros/s/AKfycbwrHJl0Eb6GrlN8Snp46nW8AiWIg6yNMI2LGLS6yJL0eIIB6aIXX4TIWZ5JUVe_hW7G/exec';
+const GAS='https://script.google.com/macros/s/AKfycbwWEfLyq2by3t4ltco7401OGjAmfNGTD-3GSnORxFI1J18SER4DGrGclD2Mufmy_xUt/exec';
 const video=document.getElementById('video'),canvas=document.getElementById('scan-canvas'),ctx=canvas.getContext('2d'),startOv=document.getElementById('start-overlay'),startBtn=document.getElementById('start-btn'),rPanel=document.getElementById('result-panel'),logList=document.getElementById('log-list'),cntEl=document.getElementById('cnt'),camSw=document.getElementById('cam-sw'),qrOv=document.getElementById('qr-overlay'),ovIcon=document.getElementById('ov-icon'),ovLabel=document.getElementById('ov-label'),ovName=document.getElementById('ov-name'),ovSub=document.getElementById('ov-sub'),ovBar=document.getElementById('ov-bar'),dbg=document.getElementById('debug');
 let scanning=false,lastCode='',lastTime=0,rTimer=null,oTimer=null,logItems=[],countOk=0,cameras=[],camIdx=0,stream=null,frameCount=0;
 
