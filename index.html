@@ -6,31 +6,14 @@
 <title>QR受付システム</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
-:root{
-  --bg:#0d0f14;--surface:#161a22;--surface2:#1e2330;
-  --accent:#00e5a0;--danger:#ff4757;--warn:#ffa502;
-  --text:#e8edf5;--text2:#8892a4;--border:rgba(255,255,255,0.08);
-  --radius:16px;
-}
+:root{--bg:#0d0f14;--surface:#161a22;--surface2:#1e2330;--accent:#00e5a0;--danger:#ff4757;--warn:#ffa502;--text:#e8edf5;--text2:#8892a4;--border:rgba(255,255,255,0.08);--radius:16px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);height:100svh;display:flex;flex-direction:column;overflow:hidden;}
-
-/* ========== HEADER ========== */
 header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
 .logo{font-size:13px;font-weight:700;color:var(--accent);}
 .logo span{color:var(--text2);font-weight:400;}
-.header-right{display:flex;align-items:center;gap:8px;}
 .counter{font-size:12px;color:var(--text2);background:var(--surface2);padding:4px 10px;border-radius:99px;border:1px solid var(--border);}
 .counter b{color:var(--accent);}
-#settings-btn{
-  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
-  color:var(--text2);font-size:18px;width:34px;height:34px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  -webkit-tap-highlight-color:transparent;transition:color .2s,border-color .2s;
-}
-#settings-btn:active{color:var(--accent);border-color:var(--accent);}
-
-/* ========== CAMERA ========== */
 #camera-wrap{position:relative;width:100%;flex:1 1 auto;overflow:hidden;background:#000;min-height:0;}
 #video{width:100%;height:100%;object-fit:cover;display:block;}
 #scan-canvas{display:none;}
@@ -43,9 +26,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 #debug{position:absolute;bottom:8px;left:8px;right:8px;background:rgba(0,0,0,.75);color:#0f0;font-size:11px;font-family:monospace;padding:6px 8px;border-radius:6px;pointer-events:none;z-index:15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #start-overlay{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:10;}
 #start-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:12px;font-family:'Noto Sans JP',sans-serif;font-size:16px;font-weight:700;padding:18px 48px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-#cam-sw{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:7px 11px;color:#fff;font-size:12px;cursor:pointer;z-index:5;display:none;-webkit-tap-highlight-color:transparent;}
-
-/* ========== OVERLAY ========== */
 #qr-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:20;padding:24px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
 #qr-overlay.ok{background:rgba(0,25,15,0.93);}
 #qr-overlay.already{background:rgba(30,18,0,0.93);}
@@ -66,8 +46,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .ng .ov-bar{background:var(--danger);}
 @keyframes shrink{from{transform:scaleX(1);}to{transform:scaleX(0);}}
 .ov-tap{font-size:11px;color:rgba(255,255,255,.3);margin-top:4px;}
-
-/* ========== RESULT PANEL ========== */
 #result-panel{flex-shrink:0;padding:10px 14px;display:none;}
 .rc{border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
 .rc.ok{background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.35);}
@@ -89,8 +67,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .rs{font-size:11px;color:var(--text2);margin-top:1px;}
 .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
-/* ========== LOG ========== */
 #log-section{flex-shrink:0;background:var(--surface);border-top:1px solid var(--border);max-height:28vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .lh{padding:8px 14px 5px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);}
 #clear-btn{font-size:11px;color:var(--text2);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
@@ -106,112 +82,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .bal{background:rgba(255,165,2,.15);color:var(--warn);}
 .bng{background:rgba(255,71,87,.15);color:var(--danger);}
 .le{padding:16px;font-size:13px;color:var(--text2);text-align:center;}
-
-/* ========== SETTINGS PANEL ========== */
-#settings-panel{
-  position:fixed;inset:0;background:var(--bg);z-index:100;
-  display:none;flex-direction:column;overflow:hidden;
-}
-#settings-panel.open{display:flex;}
-.sp-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;
-}
-.sp-title{font-size:15px;font-weight:700;color:var(--text);}
-.sp-close{
-  background:none;border:1px solid var(--border);border-radius:8px;
-  color:var(--text2);font-size:13px;padding:6px 14px;cursor:pointer;
-  font-family:'Noto Sans JP',sans-serif;-webkit-tap-highlight-color:transparent;
-}
-.sp-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;}
-.sp-section{margin-bottom:24px;}
-.sp-section-title{
-  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--text2);margin-bottom:10px;padding-bottom:6px;
-  border-bottom:1px solid var(--border);
-}
-.sp-label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;}
-.sp-input{
-  width:100%;background:var(--surface2);border:1px solid var(--border);
-  border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;
-  font-family:'Noto Sans JP',sans-serif;outline:none;
-  transition:border-color .2s;
-}
-.sp-input:focus{border-color:var(--accent);}
-.sp-input::placeholder{color:var(--text2);opacity:.5;}
-
-/* 区分リスト */
-#sheet-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
-.sheet-row{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;
-  position:relative;
-}
-.sheet-row-top{display:flex;gap:8px;align-items:center;}
-.sheet-label-input{
-  flex:0 0 100px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;
-  font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color .2s;
-  font-weight:700;text-align:center;
-}
-.sheet-label-input:focus{border-color:var(--accent);}
-.sheet-id-input{
-  flex:1;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;padding:8px 10px;color:var(--text);font-size:11px;
-  font-family:monospace;outline:none;transition:border-color .2s;
-}
-.sheet-id-input:focus{border-color:var(--accent);}
-.sheet-color-row{display:flex;align-items:center;gap:8px;}
-.sheet-color-label{font-size:11px;color:var(--text2);}
-.color-btns{display:flex;gap:6px;flex-wrap:wrap;}
-.color-btn{
-  width:28px;height:28px;border-radius:50%;border:2px solid transparent;
-  cursor:pointer;transition:transform .15s,border-color .15s;-webkit-tap-highlight-color:transparent;
-}
-.color-btn:active{transform:scale(.9);}
-.color-btn.selected{border-color:#fff;transform:scale(1.1);}
-.sheet-delete{
-  background:none;border:none;color:var(--danger);font-size:18px;
-  cursor:pointer;padding:0 4px;line-height:1;-webkit-tap-highlight-color:transparent;flex-shrink:0;
-}
-.sp-add-btn{
-  width:100%;background:none;border:1px dashed var(--border);border-radius:10px;
-  color:var(--text2);font-size:13px;padding:12px;cursor:pointer;
-  font-family:'Noto Sans JP',sans-serif;transition:border-color .2s,color .2s;
-  -webkit-tap-highlight-color:transparent;
-}
-.sp-add-btn:active{border-color:var(--accent);color:var(--accent);}
-
-.sp-footer{padding:14px 16px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
-.sp-save-btn{
-  width:100%;background:var(--accent);color:#0d0f14;border:none;border-radius:12px;
-  font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:700;
-  padding:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s;
-}
-.sp-save-btn:active{opacity:.8;}
-.sp-save-notice{font-size:11px;color:var(--text2);text-align:center;margin-top:8px;}
-
-/* 設定未完了バナー */
-#setup-banner{
-  display:none;background:rgba(255,165,2,.15);border:1px solid rgba(255,165,2,.4);
-  margin:10px 14px;border-radius:10px;padding:10px 14px;
-  font-size:12px;color:var(--warn);text-align:center;cursor:pointer;
-  flex-shrink:0;
-}
+#cam-sw{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:7px 11px;color:#fff;font-size:12px;cursor:pointer;z-index:5;display:none;-webkit-tap-highlight-color:transparent;}
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">QR受付 <span>南山附属小</span></div>
-  <div class="header-right">
-    <div class="counter">本日 <b id="cnt">0</b> 件受付済</div>
-    <button id="settings-btn" title="設定">⚙️</button>
-  </div>
+  <div class="counter">本日 <b id="cnt">0</b> 件受付済</div>
 </header>
-
-<div id="setup-banner">⚠️ GAS URLまたはスプレッドシートが未設定です。タップして設定してください。</div>
-
 <div id="camera-wrap">
   <video id="video" playsinline autoplay muted></video>
   <canvas id="scan-canvas"></canvas>
@@ -240,425 +118,131 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <button id="start-btn">カメラを起動する</button>
   </div>
 </div>
-
 <div id="result-panel"></div>
-
 <div id="log-section">
   <div class="lh">読み取り履歴 <button id="clear-btn" onclick="clearLog()">クリア</button></div>
   <div class="ll" id="log-list"><div class="le">まだスキャンされていません</div></div>
 </div>
-
-<!-- ========== 設定パネル ========== -->
-<div id="settings-panel">
-  <div class="sp-header">
-    <div class="sp-title">⚙️ システム設定</div>
-    <button class="sp-close" id="settings-close">✕ 閉じる</button>
-  </div>
-  <div class="sp-body">
-
-    <div class="sp-section">
-      <div class="sp-section-title">GAS URL</div>
-      <label class="sp-label">照合APIのデプロイURL</label>
-      <input class="sp-input" id="cfg-gas-url" type="url"
-        placeholder="https://script.google.com/macros/s/...">
-    </div>
-
-    <div class="sp-section">
-      <div class="sp-section-title">スプレッドシート区分</div>
-      <div id="sheet-list"></div>
-      <button class="sp-add-btn" id="add-sheet-btn">＋ 区分を追加</button>
-      <div style="margin-top:8px;font-size:11px;color:var(--text2);">
-        ※ 区分名はQRスキャン成功時に大きく表示されます。<br>
-        ※ スプレッドシートIDはGASが使います（GASのコードを汎用版に更新してください）。<br>
-        ※ カラーはスキャン成功時の表示色です。
-      </div>
-    </div>
-
-    <div class="sp-section">
-      <div class="sp-section-title">📲 設定用QRコード</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">
-        このQRコードを他のiPadでスキャンするだけで、同じ設定が自動で反映されます。<br>
-        <span style="color:var(--warn);">※ 保存後に生成してください</span>
-      </div>
-      <div id="qr-generate-wrap" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
-        <button class="sp-add-btn" id="gen-qr-btn" style="border-style:solid;color:var(--accent);border-color:rgba(0,229,160,.4);">
-          🔗 設定用QRコードを生成
-        </button>
-        <div id="config-qr-area" style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%;">
-          <img id="config-qr-img" src="" alt="設定用QRコード"
-            style="border-radius:12px;background:#fff;padding:12px;width:200px;height:200px;display:block;">
-          <div style="font-size:11px;color:var(--text2);text-align:center;">
-            他のiPadでこのQRをスキャンすると<br>同じ設定が自動で読み込まれます
-          </div>
-          <div id="config-url-box" style="
-            background:var(--surface2);border:1px solid var(--border);border-radius:8px;
-            padding:8px 10px;font-size:10px;font-family:monospace;color:var(--text2);
-            word-break:break-all;width:100%;
-          "></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-  <div class="sp-footer">
-    <button class="sp-save-btn" id="settings-save">保存して閉じる</button>
-    <div class="sp-save-notice">設定はこのブラウザに保存されます（localStorage）</div>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 // ============================================================
-//  デフォルト設定（初回起動時 or 設定未保存時のフォールバック）
+//  ★★★ 行事ごとにここだけ書き換える ★★★
 // ============================================================
-const DEFAULTS = {
-  gasUrl: 'https://script.google.com/macros/s/AKfycbz3zYceXKGmq1178CB7TKka-WtKjBxHaL0VPfJVMpyWTd4inCfN31n4ew4c_oMW1eti/exec',
-  sheets: [
-    { label: '年長幼児', ssId: '1y6VIQGSIWJPiauml-2Xm4vN2rd5eDpDB-Af5md0mqSA', color: '#00e5a0' },
-    { label: '一般',     ssId: '1v_eWzMu_82qfFuUDgj-p6KjGptWBAuztGqmjEkhzY60', color: '#ff8c00' }
-  ]
-};
+const GAS = 'https://script.google.com/macros/s/AKfycbz3zYceXKGmq1178CB7TKka-WtKjBxHaL0VPfJVMpyWTd4inCfN31n4ew4c_oMW1eti/exec';
 
-const COLOR_PALETTE = [
-  '#00e5a0','#ff8c00','#3b9eff','#ff4757','#a855f7',
-  '#f59e0b','#10b981','#ec4899','#14b8a6','#f97316'
+const SHEETS = [
+  { label: '年長幼児', ssId: '1y6VIQGSIWJPiauml-2Xm4vN2rd5eDpDB-Af5md0mqSA', color: '#00e5a0' },
+  { label: '一般',     ssId: '1v_eWzMu_82qfFuUDgj-p6KjGptWBAuztGqmjEkhzY60', color: '#ff8c00' },
+  // 区分を追加したい場合はここにコピーして追記：
+  // { label: '区分名', ssId: 'スプレッドシートID', color: '#カラーコード' },
 ];
-
-const STORAGE_KEY = 'qr_reception_config';
-
 // ============================================================
-//  設定の読み書き
-// ============================================================
-function loadConfig() {
-  // ① まずURLパラメータを確認（設定用QRコードから来た場合）
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('gas')) {
-      const cfgFromUrl = {
-        gasUrl: params.get('gas'),
-        sheets: JSON.parse(decodeURIComponent(params.get('sheets') || '[]'))
-      };
-      // localStorageに保存して以後URLなしでも使えるように
-      saveConfig(cfgFromUrl);
-      // URLパラメータをブラウザ履歴から除去（すっきりさせる）
-      window.history.replaceState({}, '', window.location.pathname);
-      // 読み込み成功フラグ
-      sessionStorage.setItem('cfg_loaded_from_url', '1');
-      return cfgFromUrl;
-    }
-  } catch(e) {}
 
-  // ② localStorageから読み込み
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-
-  // ③ デフォルト値
-  return JSON.parse(JSON.stringify(DEFAULTS));
-}
-function saveConfig(cfg) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
-}
-let cfg = loadConfig();
-
-// ============================================================
-//  設定用URLの生成
-// ============================================================
-function buildConfigUrl() {
-  const base = window.location.origin + window.location.pathname;
-  const sheetsJson = encodeURIComponent(JSON.stringify(
-    (cfg.sheets||[]).map(s=>({label:s.label, ssId:s.ssId, color:s.color}))
-  ));
-  return `${base}?gas=${encodeURIComponent(cfg.gasUrl)}&sheets=${sheetsJson}`;
-}
-
-// ============================================================
-//  設定パネルUI
-// ============================================================
-const settingsPanel = document.getElementById('settings-panel');
-const cfgGasUrl     = document.getElementById('cfg-gas-url');
-const sheetListEl   = document.getElementById('sheet-list');
-const setupBanner   = document.getElementById('setup-banner');
-
-document.getElementById('settings-btn').addEventListener('click', openSettings);
-document.getElementById('settings-close').addEventListener('click', closeSettings);
-document.getElementById('settings-save').addEventListener('click', saveSettings);
-document.getElementById('add-sheet-btn').addEventListener('click', () => {
-  addSheetRow({ label: '', ssId: '', color: COLOR_PALETTE[sheetListEl.children.length % COLOR_PALETTE.length] });
-});
-setupBanner.addEventListener('click', openSettings);
-
-// QRコード生成ボタン
-document.getElementById('gen-qr-btn').addEventListener('click', () => {
-  const url = buildConfigUrl();
-  const area = document.getElementById('config-qr-area');
-  const imgEl = document.getElementById('config-qr-img');
-  const urlBox = document.getElementById('config-url-box');
-  area.style.display = 'flex';
-  urlBox.textContent = url;
-  // Google Charts APIでQRコード画像を生成
-  const apiUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl='
-    + encodeURIComponent(url) + '&choe=UTF-8';
-  imgEl.src = apiUrl;
-  imgEl.onerror = () => { urlBox.textContent = '⚠ QR生成エラー。URLをコピーして使用してください。\n\n' + url; };
-});
-
-function openSettings() {
-  cfgGasUrl.value = cfg.gasUrl || '';
-  renderSheetList();
-  settingsPanel.classList.add('open');
-}
-
-function closeSettings() {
-  settingsPanel.classList.remove('open');
-}
-
-function saveSettings() {
-  const gasUrl = cfgGasUrl.value.trim();
-  const rows = [...sheetListEl.querySelectorAll('.sheet-row')];
-  const sheets = rows.map(row => ({
-    label: row.querySelector('.sheet-label-input').value.trim(),
-    ssId:  row.querySelector('.sheet-id-input').value.trim(),
-    color: row.dataset.color || '#00e5a0'
-  })).filter(s => s.label);
-
-  cfg = { gasUrl, sheets };
-  saveConfig(cfg);
-  checkSetup();
-  closeSettings();
-}
-
-function renderSheetList() {
-  sheetListEl.innerHTML = '';
-  (cfg.sheets || []).forEach(s => addSheetRow(s));
-}
-
-function addSheetRow(s) {
-  const row = document.createElement('div');
-  row.className = 'sheet-row';
-  row.dataset.color = s.color || '#00e5a0';
-
-  // カラーボタンHTML
-  const colorBtns = COLOR_PALETTE.map(c =>
-    `<button class="color-btn${c===row.dataset.color?' selected':''}" data-color="${c}"
-      style="background:${c};" title="${c}"></button>`
-  ).join('');
-
-  row.innerHTML = `
-    <div class="sheet-row-top">
-      <input class="sheet-label-input" type="text" placeholder="区分名" value="${esc(s.label)}" maxlength="10">
-      <input class="sheet-id-input" type="text" placeholder="スプレッドシートID" value="${esc(s.ssId)}">
-      <button class="sheet-delete" title="削除">🗑</button>
-    </div>
-    <div class="sheet-color-row">
-      <span class="sheet-color-label">色：</span>
-      <div class="color-btns">${colorBtns}</div>
-    </div>`;
-
-  // カラー選択
-  row.querySelectorAll('.color-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      row.dataset.color = btn.dataset.color;
-      row.querySelectorAll('.color-btn').forEach(b => b.classList.toggle('selected', b===btn));
-    });
-  });
-  // 削除
-  row.querySelector('.sheet-delete').addEventListener('click', () => row.remove());
-
-  sheetListEl.appendChild(row);
-}
-
-function checkSetup() {
-  const missing = !cfg.gasUrl || !(cfg.sheets && cfg.sheets.length);
-  setupBanner.style.display = missing ? 'block' : 'none';
-}
-checkSetup();
-
-// URLパラメータから設定が読み込まれた場合に通知
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  // すでにloadConfig()内でURLパラメータは処理済みだが、
-  // 読み込み成功をユーザーに伝えるため履歴に残る前に確認
-  // →loadConfig()でURLを消しているため、ここでは常にfalse
-  // 代わりにsessionStorageでフラグを渡す
-})();
-
-// セッション経由で「URLから読み込んだ」フラグを確認
-if (sessionStorage.getItem('cfg_loaded_from_url') === '1') {
-  sessionStorage.removeItem('cfg_loaded_from_url');
-  const notice = document.createElement('div');
-  notice.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#00e5a0;color:#0d0f14;font-size:13px;font-weight:700;padding:10px 20px;border-radius:99px;z-index:200;box-shadow:0 4px 20px rgba(0,229,160,.4);';
-  notice.textContent = '✅ 設定を読み込みました';
-  document.body.appendChild(notice);
-  setTimeout(() => notice.remove(), 3000);
-}
-
-// ============================================================
-//  スキャン処理
-// ============================================================
-const video    = document.getElementById('video');
-const canvas   = document.getElementById('scan-canvas');
-const ctx      = canvas.getContext('2d');
-const startOv  = document.getElementById('start-overlay');
-const startBtn = document.getElementById('start-btn');
-const rPanel   = document.getElementById('result-panel');
-const logList  = document.getElementById('log-list');
-const cntEl    = document.getElementById('cnt');
-const camSw    = document.getElementById('cam-sw');
-const qrOv     = document.getElementById('qr-overlay');
-const ovCategory = document.getElementById('ov-category');
-const ovIcon   = document.getElementById('ov-icon');
-const ovLabel  = document.getElementById('ov-label');
-const ovName   = document.getElementById('ov-name');
-const ovSub    = document.getElementById('ov-sub');
-const ovBar    = document.getElementById('ov-bar');
-const dbg      = document.getElementById('debug');
+const video=document.getElementById('video'),canvas=document.getElementById('scan-canvas'),ctx=canvas.getContext('2d'),startOv=document.getElementById('start-overlay'),startBtn=document.getElementById('start-btn'),rPanel=document.getElementById('result-panel'),logList=document.getElementById('log-list'),cntEl=document.getElementById('cnt'),camSw=document.getElementById('cam-sw'),qrOv=document.getElementById('qr-overlay'),ovCategory=document.getElementById('ov-category'),ovIcon=document.getElementById('ov-icon'),ovLabel=document.getElementById('ov-label'),ovName=document.getElementById('ov-name'),ovSub=document.getElementById('ov-sub'),ovBar=document.getElementById('ov-bar'),dbg=document.getElementById('debug');
 
 let scanning=false,lastCode='',lastTime=0,rTimer=null,oTimer=null,logItems=[],countOk=0,cameras=[],camIdx=0,stream=null,frameCount=0;
 
-startBtn.addEventListener('click', async () => {
-  startBtn.disabled=true; startBtn.textContent='起動中…';
-  try {
-    await startCam();
-    startOv.style.display='none'; scanning=true;
-    dbg.textContent='スキャン中... QRコードをかざしてください';
-    requestAnimationFrame(tick);
-  } catch(err) {
-    startBtn.disabled=false; startBtn.textContent='カメラを起動する';
-    alert('カメラを起動できませんでした。\n'+err.message);
-  }
+startBtn.addEventListener('click',async()=>{
+  startBtn.disabled=true;startBtn.textContent='起動中…';
+  try{await startCam();startOv.style.display='none';scanning=true;dbg.textContent='スキャン中... QRコードをかざしてください';requestAnimationFrame(tick);}
+  catch(err){startBtn.disabled=false;startBtn.textContent='カメラを起動する';alert('カメラを起動できませんでした。\n'+err.message);}
 });
 
-async function startCam() {
-  if(stream) stream.getTracks().forEach(t=>t.stop());
-  if(cameras.length===0) {
-    const devs = await navigator.mediaDevices.enumerateDevices();
-    cameras = devs.filter(d=>d.kind==='videoinput');
-    if(cameras.length>1) camSw.style.display='block';
-  }
-  const c = {video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720}}};
-  if(cameras.length>0 && cameras[camIdx]) c.video.deviceId={exact:cameras[camIdx].deviceId};
-  stream = await navigator.mediaDevices.getUserMedia(c);
-  video.srcObject=stream; await video.play();
+async function startCam(){
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  if(cameras.length===0){const devs=await navigator.mediaDevices.enumerateDevices();cameras=devs.filter(d=>d.kind==='videoinput');if(cameras.length>1)camSw.style.display='block';}
+  const c={video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720}}};
+  if(cameras.length>0&&cameras[camIdx])c.video.deviceId={exact:cameras[camIdx].deviceId};
+  stream=await navigator.mediaDevices.getUserMedia(c);video.srcObject=stream;await video.play();
 }
 
-camSw.addEventListener('click', async () => {
-  camIdx=(camIdx+1)%cameras.length;
-  try{ await startCam(); } catch(e){}
-});
+camSw.addEventListener('click',async()=>{camIdx=(camIdx+1)%cameras.length;try{await startCam();}catch(e){}});
 
-function tick() {
-  if(!scanning) return;
+function tick(){
+  if(!scanning)return;
   frameCount++;
-  if(video.readyState===video.HAVE_ENOUGH_DATA) {
-    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
-    ctx.drawImage(video,0,0);
+  if(video.readyState===video.HAVE_ENOUGH_DATA){
+    canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.drawImage(video,0,0);
     const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
     const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
-    if(code && code.data) {
+    if(code&&code.data){
       const now=Date.now();
       dbg.textContent='読取: '+code.data.slice(0,40);
-      if(code.data!==lastCode || now-lastTime>5000) {
-        lastCode=code.data; lastTime=now; handleScan(code.data);
-      }
-    } else {
-      if(frameCount%30===0) dbg.textContent='スキャン中... '+canvas.width+'x'+canvas.height;
+      if(code.data!==lastCode||now-lastTime>5000){lastCode=code.data;lastTime=now;handleScan(code.data);}
+    }else{
+      if(frameCount%30===0)dbg.textContent='スキャン中... '+canvas.width+'x'+canvas.height;
     }
-  } else {
-    dbg.textContent='ビデオ準備中... state='+video.readyState;
-  }
+  }else{dbg.textContent='ビデオ準備中... state='+video.readyState;}
   requestAnimationFrame(tick);
 }
 
-async function handleScan(qr) {
+async function handleScan(qr){
   showCard('loading','照合中…',qr,'');
-  const gasUrl = cfg.gasUrl;
-  if(!gasUrl) {
-    showCard('ng','設定エラー','GAS URLが未設定です','設定ボタンから登録してください');
-    lastCode=''; return;
-  }
-  // シート情報をGASに渡す（区分ラベル＋スプレッドシートIDのリスト）
-  const sheetsParam = encodeURIComponent(JSON.stringify(
-    (cfg.sheets||[]).map(s=>({label:s.label, ssId:s.ssId}))
-  ));
-  try {
-    const res = await fetch(
-      gasUrl+'?action=check&qr='+encodeURIComponent(qr)+'&sheets='+sheetsParam,
-      {redirect:'follow'}
-    );
-    const d = await res.json();
-    handleResult(d, qr);
-  } catch(err) {
+  const sheetsParam=encodeURIComponent(JSON.stringify(SHEETS.map(s=>({label:s.label,ssId:s.ssId}))));
+  try{
+    const res=await fetch(GAS+'?action=check&qr='+encodeURIComponent(qr)+'&sheets='+sheetsParam,{redirect:'follow'});
+    const d=await res.json();
+    handleResult(d,qr);
+  }catch(err){
     showCard('ng','エラー','通信エラー','ネットワークを確認してください');
-    addLog(qr,'ng',''); lastCode='';
+    addLog(qr,'ng','');lastCode='';
   }
 }
 
-function handleResult(d, qr) {
-  const sheetLabel = d.sheet || '';
-  // 設定から対応するカラーを取得
-  const sheetCfg = (cfg.sheets||[]).find(s=>s.label===sheetLabel);
-  const color = sheetCfg ? sheetCfg.color : '#00e5a0';
-
-  if(d.status==='scanned') {
-    countOk++; cntEl.textContent=countOk;
+function handleResult(d,qr){
+  const sheetLabel=d.sheet||'';
+  const sheetCfg=SHEETS.find(s=>s.label===sheetLabel);
+  const color=sheetCfg?sheetCfg.color:'#00e5a0';
+  if(d.status==='scanned'){
+    countOk++;cntEl.textContent=countOk;
     showCard('ok','✓ 受付完了',qr,'A列に〇を記録しました');
-    showOverlay('ok','✅','✓ 受付完了',qr,'A列に〇を記録しました', sheetLabel, color);
-    addLog(qr,'ok',sheetLabel); vib([120]);
-  } else if(d.status==='alreadyScanned') {
+    showOverlay('ok','✅','✓ 受付完了',qr,'A列に〇を記録しました',sheetLabel,color);
+    addLog(qr,'ok',sheetLabel);vib([120]);
+  }else if(d.status==='alreadyScanned'){
     showCard('already','⚠ 受付済み',qr,'すでに受付済みです');
-    showOverlay('already','⚠️','⚠ 受付済み',qr,'すでに受付済みです', sheetLabel, color);
-    addLog(qr,'already',sheetLabel); vib([60,60,60]);
-  } else {
+    showOverlay('already','⚠️','⚠ 受付済み',qr,'すでに受付済みです',sheetLabel,color);
+    addLog(qr,'already',sheetLabel);vib([60,60,60]);
+  }else{
     showCard('ng','✗ 照合なし',qr,'リストに存在しません');
     showOverlay('ng','❌','✗ 照合なし',qr,'リストに存在しません','','');
-    addLog(qr,'ng',''); vib([250]);
+    addLog(qr,'ng','');vib([250]);
   }
 }
 
-function showCard(type,label,name,sub) {
-  if(rTimer) clearTimeout(rTimer);
+function showCard(type,label,name,sub){
+  if(rTimer)clearTimeout(rTimer);
   const ic={ok:'✓',already:'⚠',ng:'✗',loading:''};
-  const ico = type==='loading'
-    ? '<div class="spinner"></div>'
-    : '<div style="font-size:18px">'+ic[type]+'</div>';
+  const ico=type==='loading'?'<div class="spinner"></div>':'<div style="font-size:18px">'+ic[type]+'</div>';
   rPanel.style.display='block';
   rPanel.innerHTML='<div class="rc '+type+'"><div class="ri">'+ico+'</div><div class="rb"><div class="rl">'+label+'</div><div class="rn">'+esc(name)+'</div>'+(sub?'<div class="rs">'+esc(sub)+'</div>':'')+'</div></div>';
-  if(type!=='loading') rTimer=setTimeout(()=>{rPanel.style.display='none';lastCode='';},10000);
+  if(type!=='loading')rTimer=setTimeout(()=>{rPanel.style.display='none';lastCode='';},10000);
 }
 
-function showOverlay(type,icon,label,name,sub,category,color) {
-  if(oTimer) clearTimeout(oTimer);
-  qrOv.className=type; qrOv.style.display='flex';
-  ovCategory.textContent = category||'';
-  ovCategory.style.background   = category ? color : 'transparent';
-  ovCategory.style.color        = category ? '#0d0f14' : 'transparent';
-  ovCategory.style.boxShadow    = category ? `0 0 40px ${color}88` : 'none';
-  ovIcon.textContent=icon; ovLabel.textContent=label;
-  ovName.textContent=name; ovSub.textContent=sub;
-  ovBar.style.animation='none'; ovBar.offsetHeight;
-  ovBar.style.animation='shrink 10s linear forwards';
+function showOverlay(type,icon,label,name,sub,category,color){
+  if(oTimer)clearTimeout(oTimer);
+  qrOv.className=type;qrOv.style.display='flex';
+  ovCategory.textContent=category||'';
+  ovCategory.style.background=category?color:'transparent';
+  ovCategory.style.color=category?'#0d0f14':'transparent';
+  ovCategory.style.boxShadow=category?`0 0 40px ${color}88`:'none';
+  ovIcon.textContent=icon;ovLabel.textContent=label;ovName.textContent=name;ovSub.textContent=sub;
+  ovBar.style.animation='none';ovBar.offsetHeight;ovBar.style.animation='shrink 10s linear forwards';
   oTimer=setTimeout(()=>{qrOv.style.display='none';lastCode='';},10000);
 }
 
 qrOv.addEventListener('click',()=>{if(oTimer)clearTimeout(oTimer);qrOv.style.display='none';lastCode='';});
 
-function addLog(qr,st,sheet) {
+function addLog(qr,st,sheet){
   const now=new Date();
   const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  logItems.unshift({qr,st,t,sheet});
-  renderLog();
+  logItems.unshift({qr,st,t,sheet});renderLog();
 }
 
-function renderLog() {
+function renderLog(){
   if(!logItems.length){logList.innerHTML='<div class="le">まだスキャンされていません</div>';return;}
-  const lb={ok:'一致',already:'済',ng:'不一致'};
-  const dc={ok:'dok',already:'dal',ng:'dng'};
-  const bc={ok:'bok',already:'bal',ng:'bng'};
+  const lb={ok:'一致',already:'済',ng:'不一致'},dc={ok:'dok',already:'dal',ng:'dng'},bc={ok:'bok',already:'bal',ng:'bng'};
   logList.innerHTML=logItems.map(i=>{
-    const sheetLabel = i.sheet
-      ? ' <span style="font-size:10px;color:var(--text2);">['+esc(i.sheet)+']</span>' : '';
+    const sheetLabel=i.sheet?' <span style="font-size:10px;color:var(--text2);">['+esc(i.sheet)+']</span>':'';
     return '<div class="li"><div class="ld '+dc[i.st]+'"></div><div class="ln">'+esc(i.qr)+sheetLabel+'</div><div class="lt">'+i.t+'</div><div class="lb2 '+bc[i.st]+'">'+lb[i.st]+'</div></div>';
   }).join('');
 }
