@@ -274,6 +274,30 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
       </div>
     </div>
 
+    <div class="sp-section">
+      <div class="sp-section-title">📲 設定用QRコード</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">
+        このQRコードを他のiPadでスキャンするだけで、同じ設定が自動で反映されます。<br>
+        <span style="color:var(--warn);">※ 保存後に生成してください</span>
+      </div>
+      <div id="qr-generate-wrap" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+        <button class="sp-add-btn" id="gen-qr-btn" style="border-style:solid;color:var(--accent);border-color:rgba(0,229,160,.4);">
+          🔗 設定用QRコードを生成
+        </button>
+        <div id="config-qr-area" style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%;">
+          <canvas id="config-qr-canvas" style="border-radius:12px;background:#fff;padding:12px;width:200px;height:200px;"></canvas>
+          <div style="font-size:11px;color:var(--text2);text-align:center;">
+            他のiPadでこのQRをスキャンすると<br>同じ設定が自動で読み込まれます
+          </div>
+          <div id="config-url-box" style="
+            background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+            padding:8px 10px;font-size:10px;font-family:monospace;color:var(--text2);
+            word-break:break-all;width:100%;
+          "></div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <div class="sp-footer">
     <button class="sp-save-btn" id="settings-save">保存して閉じる</button>
@@ -282,6 +306,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 // ============================================================
 //  デフォルト設定（初回起動時 or 設定未保存時のフォールバック）
@@ -305,16 +330,48 @@ const STORAGE_KEY = 'qr_reception_config';
 //  設定の読み書き
 // ============================================================
 function loadConfig() {
+  // ① まずURLパラメータを確認（設定用QRコードから来た場合）
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('gas')) {
+      const cfgFromUrl = {
+        gasUrl: params.get('gas'),
+        sheets: JSON.parse(decodeURIComponent(params.get('sheets') || '[]'))
+      };
+      // localStorageに保存して以後URLなしでも使えるように
+      saveConfig(cfgFromUrl);
+      // URLパラメータをブラウザ履歴から除去（すっきりさせる）
+      window.history.replaceState({}, '', window.location.pathname);
+      // 読み込み成功フラグ
+      sessionStorage.setItem('cfg_loaded_from_url', '1');
+      return cfgFromUrl;
+    }
+  } catch(e) {}
+
+  // ② localStorageから読み込み
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
+
+  // ③ デフォルト値
   return JSON.parse(JSON.stringify(DEFAULTS));
 }
 function saveConfig(cfg) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
 }
 let cfg = loadConfig();
+
+// ============================================================
+//  設定用URLの生成
+// ============================================================
+function buildConfigUrl() {
+  const base = window.location.origin + window.location.pathname;
+  const sheetsJson = encodeURIComponent(JSON.stringify(
+    (cfg.sheets||[]).map(s=>({label:s.label, ssId:s.ssId, color:s.color}))
+  ));
+  return `${base}?gas=${encodeURIComponent(cfg.gasUrl)}&sheets=${sheetsJson}`;
+}
 
 // ============================================================
 //  設定パネルUI
@@ -331,6 +388,20 @@ document.getElementById('add-sheet-btn').addEventListener('click', () => {
   addSheetRow({ label: '', ssId: '', color: COLOR_PALETTE[sheetListEl.children.length % COLOR_PALETTE.length] });
 });
 setupBanner.addEventListener('click', openSettings);
+
+// QRコード生成ボタン
+document.getElementById('gen-qr-btn').addEventListener('click', () => {
+  const url = buildConfigUrl();
+  const area = document.getElementById('config-qr-area');
+  const canvas = document.getElementById('config-qr-canvas');
+  const urlBox = document.getElementById('config-url-box');
+  area.style.display = 'flex';
+  urlBox.textContent = url;
+  QRCode.toCanvas(canvas, url, {
+    width: 200, margin: 1,
+    color: { dark: '#000000', light: '#ffffff' }
+  }, err => { if(err) urlBox.textContent = 'QR生成エラー: ' + err.message; });
+});
 
 function openSettings() {
   cfgGasUrl.value = cfg.gasUrl || '';
@@ -402,6 +473,25 @@ function checkSetup() {
   setupBanner.style.display = missing ? 'block' : 'none';
 }
 checkSetup();
+
+// URLパラメータから設定が読み込まれた場合に通知
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  // すでにloadConfig()内でURLパラメータは処理済みだが、
+  // 読み込み成功をユーザーに伝えるため履歴に残る前に確認
+  // →loadConfig()でURLを消しているため、ここでは常にfalse
+  // 代わりにsessionStorageでフラグを渡す
+})();
+
+// セッション経由で「URLから読み込んだ」フラグを確認
+if (sessionStorage.getItem('cfg_loaded_from_url') === '1') {
+  sessionStorage.removeItem('cfg_loaded_from_url');
+  const notice = document.createElement('div');
+  notice.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#00e5a0;color:#0d0f14;font-size:13px;font-weight:700;padding:10px 20px;border-radius:99px;z-index:200;box-shadow:0 4px 20px rgba(0,229,160,.4);';
+  notice.textContent = '✅ 設定を読み込みました';
+  document.body.appendChild(notice);
+  setTimeout(() => notice.remove(), 3000);
+}
 
 // ============================================================
 //  スキャン処理
