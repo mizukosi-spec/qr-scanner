@@ -116,6 +116,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
       <div style="font-size:13px;color:var(--text2);">カメラを起動してスキャンを開始します</div>
     </div>
     <button id="start-btn">カメラを起動する</button>
+    <div id="version-info" style="font-size:11px;color:var(--text2);letter-spacing:.03em;">Ver. 2026.07.08 更新</div>
   </div>
 </div>
 <div id="result-panel"></div>
@@ -130,6 +131,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 // ============================================================
 const GAS = 'https://script.google.com/macros/s/AKfycbxJe18humaM0iDar-cj3CZ7TIgbRkdnKBAxL78-V9i9eMMq2WCTOk0fq81-znqnnCkC/exec';
 
+// この行だけ書き換えれば、スタート画面のバージョン表示が更新されます
+const LAST_UPDATED = '2026.07.08';
+
+// スキャン解析の負荷設定（iPad miniなど低スペック端末向けの軽量化）
+const SCAN_WIDTH = 320;      // 解析用に縮小する横幅(px)。小さいほど速いが遠くのQRは読みにくくなる
+const SCAN_INTERVAL = 150;   // 解析の間隔(ミリ秒)。大きいほど負荷は下がるが反応が遅くなる
+
 const SHEETS = [
   { label: '授業見学のみ', ssId: '1zFypAh10RfdbFs3Dq6AOHqodbsgYPi5ZqMJ_YtLMdx0', color: '#00e5a0' },
   { label: '個別相談あり', ssId: '1XZS4F8M6GxHf_85sYhLwUW9PCu74ITGw87wfusVrdtE', color: '#ff8c00' },
@@ -141,7 +149,9 @@ const SHEETS = [
 
 const video=document.getElementById('video'),canvas=document.getElementById('scan-canvas'),ctx=canvas.getContext('2d'),startOv=document.getElementById('start-overlay'),startBtn=document.getElementById('start-btn'),rPanel=document.getElementById('result-panel'),logList=document.getElementById('log-list'),cntEl=document.getElementById('cnt'),camSw=document.getElementById('cam-sw'),qrOv=document.getElementById('qr-overlay'),ovCategory=document.getElementById('ov-category'),ovIcon=document.getElementById('ov-icon'),ovLabel=document.getElementById('ov-label'),ovName=document.getElementById('ov-name'),ovSub=document.getElementById('ov-sub'),ovBar=document.getElementById('ov-bar'),dbg=document.getElementById('debug');
 
-let scanning=false,lastCode='',lastTime=0,rTimer=null,oTimer=null,logItems=[],countOk=0,cameras=[],camIdx=0,stream=null,frameCount=0;
+let scanning=false,lastCode='',lastTime=0,rTimer=null,oTimer=null,logItems=[],countOk=0,cameras=[],camIdx=0,stream=null,frameCount=0,lastScanAt=0;
+
+document.getElementById('version-info').textContent='Ver. '+LAST_UPDATED+' 更新';
 
 startBtn.addEventListener('click',async()=>{
   startBtn.disabled=true;startBtn.textContent='起動中…';
@@ -162,16 +172,22 @@ camSw.addEventListener('click',async()=>{camIdx=(camIdx+1)%cameras.length;try{aw
 function tick(){
   if(!scanning)return;
   frameCount++;
+  const now0=performance.now();
+  if(now0-lastScanAt<SCAN_INTERVAL){requestAnimationFrame(tick);return;}
+  lastScanAt=now0;
   if(video.readyState===video.HAVE_ENOUGH_DATA){
-    canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.drawImage(video,0,0);
-    const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+    const vw=video.videoWidth,vh=video.videoHeight;
+    const scale=Math.min(1,SCAN_WIDTH/vw);
+    const sw=Math.round(vw*scale),sh=Math.round(vh*scale);
+    canvas.width=sw;canvas.height=sh;ctx.drawImage(video,0,0,sw,sh);
+    const imgData=ctx.getImageData(0,0,sw,sh);
     const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
     if(code&&code.data){
       const now=Date.now();
       dbg.textContent='読取: '+code.data.slice(0,40);
       if(code.data!==lastCode||now-lastTime>5000){lastCode=code.data;lastTime=now;handleScan(code.data);}
     }else{
-      if(frameCount%30===0)dbg.textContent='スキャン中... '+canvas.width+'x'+canvas.height;
+      if(frameCount%30===0)dbg.textContent='スキャン中... '+sw+'x'+sh;
     }
   }else{dbg.textContent='ビデオ準備中... state='+video.readyState;}
   requestAnimationFrame(tick);
