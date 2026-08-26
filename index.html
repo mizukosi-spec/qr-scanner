@@ -206,18 +206,26 @@ async function handleScan(qr){
   }
 }
 
+function extractAgeGroup(qr){
+  if(qr.indexOf('年長以外')!==-1)return '年長以外';
+  if(qr.indexOf('年長')!==-1)return '年長';
+  return '';
+}
+
 function handleResult(d,qr){
   const sheetLabel=d.sheet||'';
   const sheetCfg=SHEETS.find(s=>s.label===sheetLabel);
   const color=sheetCfg?sheetCfg.color:'#00e5a0';
+  const ageGroup=extractAgeGroup(qr);
+  const categoryText=sheetLabel+(ageGroup?'　'+ageGroup:'');
   if(d.status==='scanned'){
     countOk++;cntEl.textContent=countOk;
     showCard('ok','✓ 受付完了',qr,'A列に〇を記録しました');
-    showOverlay('ok','✅','✓ 受付完了',qr,'A列に〇を記録しました',sheetLabel,color);
+    showOverlay('ok','✅','✓ 受付完了',qr,'A列に〇を記録しました',categoryText,color);
     addLog(qr,'ok',sheetLabel);vib([120]);
   }else if(d.status==='alreadyScanned'){
     showCard('already','⚠ 受付済み',qr,'すでに受付済みです');
-    showOverlay('already','⚠️','⚠ 受付済み',qr,'すでに受付済みです',sheetLabel,color);
+    showOverlay('already','⚠️','⚠ 受付済み',qr,'すでに受付済みです',categoryText,color);
     addLog(qr,'already',sheetLabel);vib([60,60,60]);
   }else{
     showCard('ng','✗ 照合なし',qr,'リストに存在しません');
